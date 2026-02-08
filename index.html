@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Special Surprise</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap"
-        rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary-color: #ff4d6d;
@@ -23,26 +24,31 @@
             box-sizing: border-box;
         }
 
+        body,
+        html {
+            width: 100%;
+            height: auto;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            height: 100vh;
-            overflow: hidden;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             color: var(--text-color);
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
-        /* Ambient Background Animations */
+        /* Floating background bubbles */
         .bg-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            position: fixed;
+            inset: 0;
             pointer-events: none;
+            z-index: 0;
         }
 
         .shape {
@@ -57,7 +63,6 @@
             height: 150px;
             top: 10%;
             left: 10%;
-            animation-duration: 25s;
         }
 
         .shape:nth-child(2) {
@@ -65,15 +70,15 @@
             height: 200px;
             bottom: 20%;
             right: 10%;
-            animation-duration: 30s;
+            animation-duration: 27s;
         }
 
         .shape:nth-child(3) {
             width: 100px;
             height: 100px;
             top: 40%;
-            left: 50%;
-            animation-duration: 35s;
+            left: 55%;
+            animation-duration: 33s;
         }
 
         @keyframes float {
@@ -82,7 +87,7 @@
             }
 
             50% {
-                transform: translate(20px, 40px) rotate(180deg);
+                transform: translate(25px, 40px) rotate(180deg);
             }
 
             100% {
@@ -90,131 +95,110 @@
             }
         }
 
-        /* Game Container */
         #game-stage {
-            position: relative;
+            z-index: 5;
             width: 100%;
-            height: 100%;
-            z-index: 10;
+            max-width: 900px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            transition: opacity 1s ease;
         }
 
         #game-stage.hidden {
-            opacity: 0;
-            pointer-events: none;
             display: none;
         }
 
         .instructions {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 20px;
             border: 1px solid var(--glass-border);
             text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             margin-bottom: 2rem;
-            animation: fadeIn 1s ease-out;
+            max-width: 90%;
         }
 
         .instructions h1 {
             font-family: 'Dancing Script', cursive;
             font-size: 3rem;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
+            margin-bottom: .5rem;
         }
 
-        .instructions p {
-            font-size: 1.2rem;
+        .hiding-spots-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 800px;
+            padding: 20px;
         }
 
-        .score-board {
-            margin-top: 1rem;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        /* Hidden Hearts */
-        .heart-target {
-            position: absolute;
-            font-size: 2.5rem;
-            color: #d62828;
-            /* Slightly darker to blend but identifiable if looked for */
+        .hiding-spot {
+            font-size: 3.2rem;
             cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0.8;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.3));
-            animation: pulse-soft 3s infinite;
+            transition: 0.3s;
+            user-select: none;
         }
 
-        .heart-target:hover {
-            transform: scale(1.2);
-            color: #ff0000;
+        .hiding-spot.shaking {
+            animation: shake 0.5s;
+            opacity: 0.6;
         }
 
-        /* Random positions for hearts (will be set by JS mostly, but examples here) */
+        .hiding-spot.revealed {
+            animation: popOpen 0.5s forwards;
+        }
 
-        @keyframes pulse-soft {
-            0% {
-                transform: scale(1);
+        @keyframes shake {
+            10% {
+                transform: translateX(-2px)
+            }
+
+            30% {
+                transform: translateX(4px)
             }
 
             50% {
-                transform: scale(1.05);
+                transform: translateX(-4px)
+            }
+
+            70% {
+                transform: translateX(4px)
+            }
+
+            90% {
+                transform: translateX(-1px)
+            }
+        }
+
+        @keyframes popOpen {
+            0% {
+                transform: scale(1);
+                opacity: 1;
             }
 
             100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
+                transform: scale(0);
                 opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
             }
         }
 
-        /* Envelope Stage */
+        /* Envelope stage */
         #envelope-stage {
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            z-index: 20;
-            opacity: 0;
-            transition: opacity 1.5s ease;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
+            gap: 2rem;
         }
 
         #envelope-stage.visible {
             display: flex;
-            opacity: 1;
         }
 
         .envelope-container {
             position: relative;
             cursor: pointer;
-            transition: transform 0.5s ease;
-        }
-
-        .envelope-container:hover {
-            transform: scale(1.05);
         }
 
         .envelope {
@@ -223,39 +207,32 @@
             background: #ff4d6d;
             border-radius: 10px;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: all 0.5s ease;
         }
 
         .flap {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 0;
             height: 0;
             border-left: 150px solid transparent;
             border-right: 150px solid transparent;
-            border-top: 110px solid #ff758f;
-            /* Lighter shade */
+            border-top: 110px solid #ff8fa3;
+            top: 0;
+            left: 0;
+            transition: 0.7s ease;
             transform-origin: top;
-            transition: transform 0.6s ease 0.5s, z-index 0.2s;
-            z-index: 5;
+            z-index: 3;
         }
 
         .pocket {
             position: absolute;
-            bottom: 0;
-            left: 0;
             width: 0;
             height: 0;
             border-left: 150px solid transparent;
             border-right: 150px solid transparent;
             border-bottom: 200px solid #ff4d6d;
-            z-index: 3;
+            bottom: 0;
+            left: 0;
+            z-index: 1;
         }
 
         .letter-preview {
@@ -265,8 +242,8 @@
             position: absolute;
             bottom: 0;
             border-radius: 5px;
+            transition: 0.7s ease;
             z-index: 2;
-            transition: transform 0.8s ease 1s;
         }
 
         .seal {
@@ -277,88 +254,53 @@
             position: absolute;
             top: 80px;
             left: 130px;
-            z-index: 6;
+            z-index: 4;
             display: flex;
-            justify-content: center;
             align-items: center;
-            color: #ffcccb;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.5s ease;
+            justify-content: center;
+            color: white;
         }
 
-        /* Open state for envelope */
         .envelope-container.open .flap {
             transform: rotateX(180deg);
-            z-index: 1;
+        }
+
+        .envelope-container.open .letter-preview {
+            transform: translateY(-120px);
         }
 
         .envelope-container.open .seal {
             opacity: 0;
-            pointer-events: none;
         }
 
-        .envelope-container.open .letter-preview {
-            transform: translateY(-100px);
-            z-index: 4;
-        }
-
-        .open-btn {
-            margin-top: 3rem;
-            padding: 1rem 3rem;
-            background: white;
-            color: var(--primary-color);
-            border: none;
-            border-radius: 50px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .open-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 77, 109, 0.6);
-            background: #fff0f3;
-        }
-
-        /* Full Letter View */
+        /* FULL LETTER VIEW (Modal) */
         #letter-view {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 50;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+            z-index: 50;
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         #letter-view.active {
             display: flex;
-            opacity: 1;
         }
 
         .love-letter {
-            background: #fff;
+            background: white;
             width: 90%;
             max-width: 600px;
             padding: 3rem;
-            border-radius: 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            background-image: repeating-linear-gradient(white 0px, white 24px, #f3f3f3 25px);
             position: relative;
-            background-image: repeating-linear-gradient(white 0px, white 24px, #e9ecef 25px);
-            line-height: 25px;
-            transform: scale(0.8);
-            transition: transform 0.5s ease;
+            transform: scale(0.9);
+            transition: 0.5s ease;
         }
 
         #letter-view.active .love-letter {
@@ -368,52 +310,55 @@
         .love-letter h2 {
             font-family: 'Dancing Script', cursive;
             font-size: 2.5rem;
-            color: var(--primary-color);
+            margin-bottom: 1.5rem;
             text-align: center;
-            margin-bottom: 2rem;
+            color: var(--primary-color);
         }
 
         .love-letter p {
             font-family: 'Dancing Script', cursive;
             font-size: 1.6rem;
+            margin-bottom: 1rem;
             color: #333;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
         }
 
         .close-btn {
             position: absolute;
-            top: 10px;
+            top: 12px;
             right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #aaa;
             background: none;
-            border: none;
+            border: 0;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #444;
         }
 
-        .close-btn:hover {
-            color: #333;
-        }
 
-        /* Sparkle animation for finding heart */
-        .sparkle {
-            position: absolute;
-            pointer-events: none;
-            animation: sparkleAnim 0.8s ease-out forwards;
-            font-size: 20px;
-            color: gold;
-        }
+        /* 📱 MOBILE FIX FOR LETTER VIEW */
+        @media (max-width: 600px) {
 
-        @keyframes sparkleAnim {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 1;
+            #letter-view {
+                align-items: flex-start;
+                padding-top: 30px;
+                padding-bottom: 40px;
             }
 
-            100% {
-                transform: scale(2) rotate(180deg);
-                opacity: 0;
+            .love-letter {
+                width: 92vw !important;
+                padding: 1.8rem !important;
+            }
+
+            .love-letter h2 {
+                font-size: 2rem !important;
+            }
+
+            .love-letter p {
+                font-size: 1.25rem !important;
+                line-height: 1.4;
+            }
+
+            .close-btn {
+                font-size: 2rem;
             }
         }
     </style>
@@ -428,186 +373,58 @@
         <div class="shape"></div>
     </div>
 
-    <!-- Game Stage -->
+    <!-- GAME -->
     <div id="game-stage">
         <div class="instructions">
             <h1>Find My Heart</h1>
-            <p>I've hidden 3 hearts inside these gifts and surprises.<br>Click them to find where my heart lies!</p>
+            <p>I’ve hidden 3 hearts inside these cute gifts.<br>
+                Find them and unlock something special… ❤️</p>
             <div class="score-board">Hearts Found: <span id="counter">0</span>/3</div>
         </div>
 
-        <!-- Hiding Spots Container -->
-        <div class="hiding-spots-container">
-            <!-- Generated by JS -->
-        </div>
+        <div class="hiding-spots-container"></div>
     </div>
 
-    <!-- Envelope Stage -->
+    <!-- ENVELOPE -->
     <div id="envelope-stage">
         <div class="envelope-container" id="envelope">
             <div class="envelope">
                 <div class="pocket"></div>
-                <!-- The letter inside -->
                 <div class="letter-preview"></div>
                 <div class="flap"></div>
                 <div class="seal">❤️</div>
             </div>
         </div>
+
         <button class="open-btn" onclick="openEnvelope()">Open Me</button>
     </div>
 
-    <!-- Full Letter View -->
+    <!-- LETTER -->
     <div id="letter-view">
         <div class="love-letter">
             <button class="close-btn" onclick="closeLetter()">×</button>
             <h2>My Dearest Valentine,</h2>
-            <p>Just like you found these hidden hearts, you've found the deepest parts of my soul.</p>
-            <p>Every moment with you is a surprise I cherish, a gift I never want to stop opening.</p>
-            <p>Thank you for being my adventure, my comfort, and my love.</p>
-            <p>Happy Valentine's Day! ❤️</p>
-            <p style="text-align: right;">- Yours forever</p>
+            <p>You found every heart I hid… but you already have the real one — mine.</p>
+            <p>Every moment with you feels magical, warm, and full of meaning.</p>
+            <p>Thank you for being the sweetest surprise life ever gave me.</p>
+            <p>Happy Valentine's Day, love. ❤️</p>
+            <p style="text-align: right;">— Yours forever</p>
         </div>
     </div>
-
-    <style>
-        /* Additional Styles for Hiding Spots */
-        .hiding-spots-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2rem;
-            max-width: 800px;
-            padding: 20px;
-            z-index: 15;
-            perspective: 1000px;
-        }
-
-        .hiding-spot {
-            font-size: 3.5rem;
-            cursor: pointer;
-            transition: transform 0.3s ease, opacity 0.3s;
-            position: relative;
-            user-select: none;
-            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
-        }
-
-        .hiding-spot:hover {
-            transform: scale(1.1) translateY(-5px);
-        }
-
-        .hiding-spot.shaking {
-            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
-            color: #ccc;
-            /* Fade out slightly to show checked */
-            cursor: default;
-        }
-
-        .hiding-spot.revealed {
-            animation: popOpen 0.5s ease forwards;
-            pointer-events: none;
-        }
-
-        .hidden-heart-popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            font-size: 2rem;
-            color: #ff0000;
-            pointer-events: none;
-            z-index: 20;
-        }
-
-        .pop-anim {
-            animation: popHeart 1s ease forwards;
-        }
-
-        @keyframes shake {
-
-            10%,
-            90% {
-                transform: translate3d(-1px, 0, 0);
-            }
-
-            20%,
-            80% {
-                transform: translate3d(2px, 0, 0);
-            }
-
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-4px, 0, 0);
-            }
-
-            40%,
-            60% {
-                transform: translate3d(4px, 0, 0);
-            }
-        }
-
-        @keyframes popOpen {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 0.8;
-            }
-
-            100% {
-                transform: scale(0);
-                opacity: 0;
-            }
-        }
-
-        @keyframes popHeart {
-            0% {
-                transform: translate(-50%, -50%) scale(0);
-                opacity: 0;
-            }
-
-            50% {
-                transform: translate(-50%, -150%) scale(2);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(-50%, -300%) scale(0);
-                opacity: 0;
-            }
-        }
-
-        /* Adjust game stage layout for grid */
-        #game-stage {
-            display: flex;
-            /* Ensure flex for centering */
-        }
-    </style>
 
     <script>
         let heartsFound = 0;
         const totalHearts = 3;
 
-        // Items to hide things in
         const hidingItems = ['🎁', '🎁', '🎁', '🧸', '🧸', '💐', '💐', '☁️', '💌', '🍬', '🧁', '🌹'];
-        let spots = [];
 
-        window.onload = function () {
-            initGame();
-        };
+        window.onload = () => {
+            const container = document.querySelector('.hiding-stills-container, .hiding-spots-container');
 
-        function initGame() {
-            const container = document.querySelector('.hiding-spots-container');
-            // Shuffle items
             hidingItems.sort(() => Math.random() - 0.5);
 
-            // Limit to maybe 12 items on screen for clean look
             const displayItems = hidingItems.slice(0, 12);
 
-            // Pick 3 random indices to hold hearts
             let heartIndices = new Set();
             while (heartIndices.size < 3) {
                 heartIndices.add(Math.floor(Math.random() * displayItems.length));
@@ -615,100 +432,45 @@
 
             displayItems.forEach((icon, index) => {
                 const spot = document.createElement('div');
-                spot.classList.add('hiding-spot');
-                spot.innerText = icon;
+                spot.className = 'hiding-spot';
                 spot.dataset.hasHeart = heartIndices.has(index);
+                spot.innerText = icon;
                 spot.onclick = () => checkSpot(spot);
                 container.appendChild(spot);
-                spots.push(spot);
             });
-        }
+        };
 
-        function checkSpot(element) {
-            if (element.classList.contains('shaking') || element.classList.contains('revealed')) return;
+        function checkSpot(el) {
+            if (el.classList.contains('shaking') || el.classList.contains('revealed')) return;
 
-            if (element.dataset.hasHeart === "true") {
-                // FOUND HEART
-                element.classList.add('revealed');
-
-                // Show floating heart
-                const heart = document.createElement('div');
-                heart.classList.add('hidden-heart-popup', 'pop-anim');
-                heart.innerText = '❤️';
-                element.appendChild(heart);
-
-                // Sparkles at position
-                const rect = element.getBoundingClientRect();
-                createSparkles(rect.left + rect.width / 2, rect.top + rect.height / 2);
-
+            if (el.dataset.hasHeart === "true") {
+                el.classList.add('revealed');
                 heartsFound++;
-                document.getElementById('counter').innerText = heartsFound;
+                document.getElementById('counter').innerHTML = heartsFound;
 
                 if (heartsFound === totalHearts) {
-                    setTimeout(revealEnvelope, 1200);
+                    setTimeout(showEnvelope, 700);
                 }
             } else {
-                // EMPTY
-                element.classList.add('shaking');
-                // Optional: Change emoji to empty/sad or just fade
-                // element.style.opacity = '0.5';
+                el.classList.add('shaking');
             }
         }
 
-        function createSparkles(x, y) {
-            for (let i = 0; i < 8; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.classList.add('sparkle');
-                sparkle.innerText = '✨';
-                sparkle.style.left = (x + (Math.random() * 40 - 20)) + 'px';
-                sparkle.style.top = (y + (Math.random() * 40 - 20)) + 'px';
-                document.body.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 800);
-            }
-        }
-
-        function revealEnvelope() {
-            const gameStage = document.getElementById('game-stage');
-            const envelopeStage = document.getElementById('envelope-stage');
-
-            gameStage.classList.add('hidden');
-
-            setTimeout(() => {
-                gameStage.style.display = 'none';
-                envelopeStage.style.display = 'flex';
-                void envelopeStage.offsetWidth;
-                envelopeStage.classList.add('visible');
-            }, 1000);
+        function showEnvelope() {
+            document.getElementById('game-stage').classList.add('hidden');
+            document.getElementById('envelope-stage').classList.add('visible');
         }
 
         function openEnvelope() {
-            const envContainer = document.getElementById('envelope');
-            const letterView = document.getElementById('letter-view');
-            envContainer.classList.add('open');
+            document.getElementById('envelope').classList.add('open');
+
             setTimeout(() => {
-                letterView.classList.add('active');
-                createConfetti();
-            }, 1500);
+                document.getElementById('letter-view').classList.add('active');
+            }, 1400);
         }
 
         function closeLetter() {
             document.getElementById('letter-view').classList.remove('active');
-        }
-
-        function createConfetti() {
-            const colors = ['#ff4d6d', '#ff8fa3', '#fff', '#gold'];
-            for (let i = 0; i < 50; i++) {
-                const conf = document.createElement('div');
-                conf.style.position = 'fixed';
-                conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.top = -10 + 'px';
-                conf.style.width = '10px';
-                conf.style.height = '10px';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animation = `float ${Math.random() * 3 + 2}s linear forwards`;
-                document.body.appendChild(conf);
-                setTimeout(() => conf.remove(), 5000);
-            }
         }
     </script>
 </body>
